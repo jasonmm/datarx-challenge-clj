@@ -6,8 +6,6 @@ See [Word Search Programming Problem.pdf]().
 
     $ cat grid.txt | lein run bread
 
-    $ java -jar datarx-challenge-0.1.0-standalone.jar [args]
-
 ## Examples
 
 	$ cat grid.txt | lein run bread
