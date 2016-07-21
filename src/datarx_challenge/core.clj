@@ -1,4 +1,7 @@
 (ns datarx-challenge.core
+  (:require [clojure.core.async
+             :as a
+             :refer [>! <! >!! <!! go chan buffer close! thread alts! alts!! timeout]])
   (:gen-class))
 
 ; go - start listening channel that receives built words
@@ -20,6 +23,10 @@
    {:x 1 :y -1}])
 
 (def occurrences 0)
+(def num-finished-letters 0)
+(def oc-chan (chan))
+(def finished-chan (chan))
+(def exit-chan (chan))
 
 (defmacro doseq-indexed [index-sym [item-sym coll] & body]
   "https://gist.github.com/halgari/4136116"
@@ -57,7 +64,7 @@
   [board-index direction word board]
   (def board-size (Math/floor (Math/sqrt (count board))))
   (loop [built-word (str (nth board board-index)) bi board-index d direction w word b board]
-    ;(println (str built-word " " bi "...next index is " (next-board-index bi d board-size)))
+    (println (str built-word " " bi "...next index is " (next-board-index bi d board-size)))
     (if (or (= (count built-word) (count word)) (= (next-board-index bi d board-size) nil))
       built-word
       (recur (str built-word (nth board (next-board-index bi d board-size)))
@@ -66,21 +73,41 @@
              w
              b))))
 
+(defn inc-occurrences
+  [x]
+  (def occurrences (inc occurrences)))
+
+(defn process-board-index
+  [board-index board word]
+  (def board-letter (nth board board-index))
+  (if (= board-letter (nth word 0))
+    (doseq [d directions]
+      (let [built-word (build-word board-index d word board)]
+        (if (= built-word word)
+          (>!! oc-chan 1)))))
+  (>!! finished-chan 1))
+
+(defn handle-finished-letter
+  [max-count word & x]
+  (def num-finished-letters (inc num-finished-letters))
+  (println (str "finished " num-finished-letters))
+  (if (= num-finished-letters max-count)
+    (println (str "The word '" word "' occurs " occurrences " time"
+                  (if (> occurrences 1) "s") "."))
+    (>!! exit-chan 1)))
+
 (defn -main
   [& args]
   (let [board (clojure.string/join ""
                                    (line-seq (java.io.BufferedReader. *in*)))]
     (def word (first *command-line-args*))
     (def flattened-board (seq (char-array board)))
+    (def flattened-board-len (- (count flattened-board) 1))
+    (go (while true (inc-occurrences (<! oc-chan))))
+    (go (while true (handle-finished-letter flattened-board-len word (<! finished-chan))))
     (loop [n 0]
-      (def board-letter (nth flattened-board n))
-      (if (= board-letter (nth word 0))
-        (doseq [d directions]
-          (let [built-word (build-word n d word flattened-board)]
-            (if (= built-word word)
-              (def occurrences (inc occurrences))))))
+      (go (process-board-index n flattened-board word))
       (if (< n (- (count flattened-board) 1))
         (recur (inc n))))
     ;(println (seq (char-array board)))
-    (println (str "The word '" word "' occurs " occurrences " time"
-                  (if (> occurrences 1) "s") "."))))
+    (<!! exit-chan)))
