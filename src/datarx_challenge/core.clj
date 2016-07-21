@@ -72,12 +72,15 @@
                                    (line-seq (java.io.BufferedReader. *in*)))]
     (def word (first *command-line-args*))
     (def flattened-board (seq (char-array board)))
-    (doseq-indexed n [board-letter board]
-                   (if (= board-letter (nth word 0))
-                     (doseq [d directions]
-                       (let [built-word (build-word n d word flattened-board)]
-                         (if (= built-word word)
-                           (def occurrences (inc occurrences)))))))
+    (loop [n 0]
+      (def board-letter (nth flattened-board n))
+      (if (= board-letter (nth word 0))
+        (doseq [d directions]
+          (let [built-word (build-word n d word flattened-board)]
+            (if (= built-word word)
+              (def occurrences (inc occurrences))))))
+      (if (< n (- (count flattened-board) 1))
+        (recur (inc n))))
     ;(println (seq (char-array board)))
     (println (str "The word '" word "' occurs " occurrences " time"
                   (if (> occurrences 1) "s") "."))))
