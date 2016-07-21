@@ -71,10 +71,11 @@
   (let [board (clojure.string/join ""
                                    (line-seq (java.io.BufferedReader. *in*)))]
     (def word (first *command-line-args*))
+    (def flattened-board (seq (char-array board)))
     (doseq-indexed n [board-letter board]
                    (if (= board-letter (nth word 0))
                      (doseq [d directions]
-                       (let [built-word (build-word n d word (seq (char-array board)))]
+                       (let [built-word (build-word n d word flattened-board)]
                          (if (= built-word word)
                            (def occurrences (inc occurrences)))))))
     ;(println (seq (char-array board)))
