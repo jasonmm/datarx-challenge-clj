@@ -1,12 +1,13 @@
 (ns datarx-challenge.core
   (:gen-class))
 
+; go - start listening channel that receives built words
+;  if built-word == word
+;   add to occurrences
 ; loop over board letters
 ;  if board-letter == word[0]
 ;   loop over directions
-;    build word from board-letter in the direction for word-len letters
-;    if built-word == word
-;     add to occurrences
+;    go - build word from board-letter in the direction for word-len letters and write built word to the channel
 
 (def directions
   [{:x 1 :y 0}
@@ -70,12 +71,16 @@
   (let [board (clojure.string/join ""
                                    (line-seq (java.io.BufferedReader. *in*)))]
     (def word (first *command-line-args*))
-    (doseq-indexed n [board-letter board]
-                   (if (= board-letter (nth word 0))
-                     (doseq [d directions]
-                       (let [built-word (build-word n d word (seq (char-array board)))]
-                         (if (= built-word word)
-                           (def occurrences (inc occurrences)))))))
+    (def flattened-board (seq (char-array board)))
+    (loop [n 0]
+      (def board-letter (nth flattened-board n))
+      (if (= board-letter (nth word 0))
+        (doseq [d directions]
+          (let [built-word (build-word n d word flattened-board)]
+            (if (= built-word word)
+              (def occurrences (inc occurrences))))))
+      (if (< n (- (count flattened-board) 1))
+        (recur (inc n))))
     ;(println (seq (char-array board)))
     (println (str "The word '" word "' occurs " occurrences " time"
                   (if (> occurrences 1) "s") "."))))

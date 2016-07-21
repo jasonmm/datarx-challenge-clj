@@ -3,8 +3,10 @@
   :url ""
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[org.clojure/clojure "1.8.0"]]
-  :plugins [[lein-cljfmt "0.5.3"] [lein-bin "0.3.4"]]
+  :dependencies [[org.clojure/clojure "1.8.0"] 
+                 [org.clojure/core.async "0.2.385"]]
+  :plugins [[lein-cljfmt "0.5.3"] 
+            [lein-bin "0.3.4"]]
   :main ^:skip-aot datarx-challenge.core
   :target-path "target"
   :bin { :name "datarx-challenge" }
