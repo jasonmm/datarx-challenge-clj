@@ -21,12 +21,6 @@
 
 (def occurrences 0)
 
-(defmacro doseq-indexed [index-sym [item-sym coll] & body]
-  "https://gist.github.com/halgari/4136116"
-  `(doseq [[~item-sym ~index-sym]
-           (map vector ~coll (range))]
-     ~@body))
-
 (defn coordinates-from-board-index
   "Converts a given board index into x/y coordinates (e.g. {:x 3 :y 2})."
   [board-index board-size]
