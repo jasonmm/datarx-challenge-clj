@@ -1,12 +1,13 @@
 (ns datarx-challenge.core
   (:gen-class))
 
+; go - start listening channel that receives built words
+;  if built-word == word
+;   add to occurrences
 ; loop over board letters
 ;  if board-letter == word[0]
 ;   loop over directions
-;    build word from board-letter in the direction for word-len letters
-;    if built-word == word
-;     add to occurrences
+;    go - build word from board-letter in the direction for word-len letters and write built word to the channel
 
 (def directions
   [{:x 1 :y 0}
