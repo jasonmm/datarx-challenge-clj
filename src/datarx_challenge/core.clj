@@ -9,6 +9,7 @@
 ;   loop over directions
 ;    go - build word from board-letter in the direction for word-len letters and write built word to the channel
 
+
 (def directions
   [{:x 1 :y 0}
    {:x 1 :y 1}
@@ -18,8 +19,6 @@
    {:x -1 :y -1}
    {:x 0 :y -1}
    {:x 1 :y -1}])
-
-(def occurrences 0)
 
 (defn coordinates-from-board-index
   "Converts a given board index into x/y coordinates (e.g. {:x 3 :y 2})."
@@ -60,21 +59,27 @@
              w
              b))))
 
+(defn search
+  "Returns the number of times 'word' appears in the 'board'."
+  [word board]
+  (def occurrences 0)
+  (loop [n 0]
+    (def board-letter (nth board n))
+    (if (= board-letter (nth word 0))
+      (doseq [d directions]
+        (let [built-word (build-word n d word board)]
+          (if (= built-word word)
+            (def occurrences (inc occurrences))))))
+    (if (< n (- (count board) 1))
+      (recur (inc n))))
+  occurrences)
+
 (defn -main
   [& args]
   (let [board (clojure.string/join ""
                                    (line-seq (java.io.BufferedReader. *in*)))]
     (def word (first *command-line-args*))
     (def flattened-board (seq (char-array board)))
-    (loop [n 0]
-      (def board-letter (nth flattened-board n))
-      (if (= board-letter (nth word 0))
-        (doseq [d directions]
-          (let [built-word (build-word n d word flattened-board)]
-            (if (= built-word word)
-              (def occurrences (inc occurrences))))))
-      (if (< n (- (count flattened-board) 1))
-        (recur (inc n))))
-    ;(println (seq (char-array board)))
+    (def occurrences (search word flattened-board))
     (println (str "The word '" word "' occurs " occurrences " time"
-                  (if (> occurrences 1) "s") "."))))
+                  (if (= occurrences 1) "" "s") "."))))
