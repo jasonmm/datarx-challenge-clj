@@ -74,12 +74,31 @@
       (recur (inc n))))
   occurrences)
 
+(defn grid-rows-not-equal
+  "Displays an error about the grid rows needing to be the same length, then 
+  terminates the program."
+  []
+  (println "ERROR: The rows of the grid must be the same length.  There may be as many rows as you wish, but each row must have the same number of characters.")
+  (System/exit 1))
+
+(defn verify-line-length
+  "Checks that every line is the same length. Terminates the program if that 
+  is not true. 'board' is a seq of strings."
+  [board]
+  (def line-length (count (nth board 0)))
+  (loop [line-num 1]
+    (def cur-line-length (count (nth board line-num)))
+    (if (not= cur-line-length line-length)
+      (grid-rows-not-equal))
+    (if (< line-num (- (count board) 1))
+      (recur (inc line-num)))))
+
 (defn -main
   [& args]
-  (let [board (clojure.string/join ""
-                                   (line-seq (java.io.BufferedReader. *in*)))]
+  (let [board (line-seq (java.io.BufferedReader. *in*))]
+    (verify-line-length board)
     (def word (first *command-line-args*))
-    (def flattened-board (seq (char-array board)))
+    (def flattened-board (seq (char-array (clojure.string/join "" board))))
     (def occurrences (search word flattened-board))
     (println (str "The word '" word "' occurs " occurrences " time"
                   (if (= occurrences 1) "" "s") "."))))
