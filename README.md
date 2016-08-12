@@ -1,6 +1,6 @@
 # datarx-challenge
 
-See [Word Search Programming Problem.pdf]().
+See [Word Search Programming Problem.pdf](https://bitbucket.org/jasonmm/datarx-challenge-clj/raw/91c8697b900ca3c3c61fa65cb9fd09192d07a634/Word%20Search%20Programming%20Problem.pdf).
 
 ## Requirements
 
