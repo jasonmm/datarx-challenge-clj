@@ -54,7 +54,8 @@
                (next-board-index bi direction board-size))))))
 
 (defn search
-  "Returns the number of times 'word' appears in the 'board'."
+  "Returns the number of times 'word' appears in the 'board'. 'board' is a 
+  vector of characters."
   [word board]
   (def occurrences 0)
   (loop [n 0]
@@ -79,7 +80,7 @@
     (if-not (lines-are-equal? board)
       (println "ERROR: The rows of the grid must be the same length.  There may be as many rows as you wish, but each row must have the same number of characters.")
       (let [word (first *command-line-args*)
-            flattened-board (seq (char-array (clojure.string/join "" board)))
+            flattened-board (vec (clojure.string/join "" board))
             occurrences (search word flattened-board)]
         (println (str "The word '" word "' occurs " occurrences " time"
                       (if (= occurrences 1) "" "s") "."))))))
