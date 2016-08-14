@@ -35,24 +35,23 @@
         x (+ (coords :x) (direction :x))]
     ;(print (str "Input board-index " board-index " (" coords ") with direction " direction " and board-size " board-size))
     ;(println (str " becomes ouput coords " x "," y))
-    (if (or (>= y board-size) (>= x board-size) (< y 0) (< x 0))
-      nil
+    (when (and (< -1 y board-size)
+               (< -1 x board-size))
       (board-index-from-coordinates x y board-size))))
 
 (defn build-word
   "Returns the word created by starting at 'board-index' and heading in the 
   'direction' direction for (count word) characters."
   [board-index direction word board]
-  (let [board-size (Math/floor (Math/sqrt (count board)))]
-    (loop [built-word (str (nth board board-index)) bi board-index d direction w word b board]
+  (let [board-size (int (Math/sqrt (count board)))]
+    (loop [built-word (str (nth board board-index))
+           bi board-index]
       ;(println (str built-word " " bi "...next index is " (next-board-index bi d board-size)))
-      (if (or (= (count built-word) (count word)) (= (next-board-index bi d board-size) nil))
+      (if (or (= (count built-word) (count word))
+              (= (next-board-index bi direction board-size) nil))
         built-word
-        (recur (str built-word (nth board (next-board-index bi d board-size)))
-               (next-board-index bi d board-size)
-               d
-               w
-               b)))))
+        (recur (str built-word (nth board (next-board-index bi direction board-size)))
+               (next-board-index bi direction board-size))))))
 
 (defn search
   "Returns the number of times 'word' appears in the 'board'."
