@@ -43,30 +43,24 @@
   "Returns the word created by starting at 'board-index' and heading in the 
   'direction' direction for (count word) characters."
   [board-index direction word board line-length]
-    (loop [built-word (str (nth board board-index))
-           bi board-index]
-      ;(println (str built-word " " bi "...next index is " (next-board-index bi direction line-length)))
-      (if (or (= (count built-word) (count word))
-              (= (next-board-index bi direction line-length) nil))
-        built-word
-        (recur (str built-word (nth board (next-board-index bi direction line-length)))
-               (next-board-index bi direction line-length)))))
+  (println (str "building word at " board-index " " direction))
+  (let [n (count word)]
+    (->> (iterate #(merge-with + direction %) {:x 0 :y 0})
+         (take n)
+         (map #(next-board-index board-index % line-length))
+         (take-while some?)
+         (map board)
+         (clojure.string/join))))
 
 (defn search
   "Returns the number of times 'word' appears in the 'board'. 'board' is a 
   vector of characters. 'line-length' the length of each line in the board."
   [word board line-length]
-  (def occurrences 0)
-  (loop [n 0]
-    (let [board-letter (nth board n)]
-      (if (= board-letter (nth word 0))
-        (doseq [d directions]
-          (let [built-word (build-word n d word board line-length)]
-            (if (= built-word word)
-              (def occurrences (inc occurrences))))))
-      (if (< n (- (count board) 1))
-        (recur (inc n)))))
-  occurrences)
+  (->> (for [idx (range 0 (count board))
+             dir directions]
+         (build-word idx dir word board line-length))
+       (filter #(= word %))
+       (count)))
 
 (defn lines-are-equal?
   "True if every line is the same length. 'board' is a seq of strings."
