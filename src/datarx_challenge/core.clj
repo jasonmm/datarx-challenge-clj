@@ -62,17 +62,17 @@
 (defn search
   "Returns the number of times 'word' appears in the 'board'."
   [word board]
-  (let [occurrences 0]
-    (loop [n 0]
-      (let [board-letter (nth board n)]
-        (if (= board-letter (nth word 0))
-          (doseq [d directions]
-            (let [built-word (build-word n d word board)]
-              (if (= built-word word)
-                (def occurrences (inc occurrences))))))
-        (if (< n (- (count board) 1))
-          (recur (inc n)))))
-    occurrences))
+  (def occurrences 0)
+  (loop [n 0]
+    (let [board-letter (nth board n)]
+      (if (= board-letter (nth word 0))
+        (doseq [d directions]
+          (let [built-word (build-word n d word board)]
+            (if (= built-word word)
+              (def occurrences (inc occurrences))))))
+      (if (< n (- (count board) 1))
+        (recur (inc n)))))
+  occurrences)
 
 (defn grid-rows-not-equal
   "Displays an error about the grid rows needing to be the same length, then 
@@ -87,11 +87,11 @@
   [board]
   (let [line-length (count (nth board 0))]
     (loop [line-num 1]
-      (def cur-line-length (count (nth board line-num)))
-      (if (not= cur-line-length line-length)
-        (grid-rows-not-equal))
-      (if (< line-num (- (count board) 1))
-        (recur (inc line-num))))))
+      (let [cur-line-length (count (nth board line-num))]
+        (if (not= cur-line-length line-length)
+          (grid-rows-not-equal))
+        (if (< line-num (- (count board) 1))
+          (recur (inc line-num)))))))
 
 (defn -main
   [& args]
