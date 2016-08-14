@@ -20,22 +20,17 @@
    {:x 0 :y -1}
    {:x 1 :y -1}])
 
-(defn coordinates-from-board-index
-  "Converts a given board index into x/y coordinates (e.g. {:x 3 :y 2})."
-  [board-index board-size]
-  (let [y (quot board-index board-size)
-        x (mod board-index board-size)]
-    {:x x :y y}))
-
 (defn board-index-from-coordinates
-  "Converts the given coordinates into an index into the flattened grid."
+  "Converts the given coordinates into an index into the flattened grid. This
+  function is only used once, but is left in for readability."
   [x y board-size]
   (+ (* board-size y) x))
 
 (defn next-board-index
   "Calculates a new board index from a starting board index and a direction."
   [board-index direction board-size]
-  (let [coords (coordinates-from-board-index board-index board-size)
+  (let [coords {:x (mod board-index board-size)
+                :y (quot board-index board-size)}
         y (+ (coords :y) (direction :y))
         x (+ (coords :x) (direction :x))]
     ;(print (str "Input board-index " board-index " (" coords ") with direction " direction " and board-size " board-size))
@@ -74,31 +69,18 @@
         (recur (inc n)))))
   occurrences)
 
-(defn grid-rows-not-equal
-  "Displays an error about the grid rows needing to be the same length, then 
-  terminates the program."
-  []
-  (println "ERROR: The rows of the grid must be the same length.  There may be as many rows as you wish, but each row must have the same number of characters.")
-  (System/exit 1))
-
-(defn verify-line-length
-  "Checks that every line is the same length. Terminates the program if that 
-  is not true. 'board' is a seq of strings."
+(defn lines-are-equal?
+  "True if every line is the same length. 'board' is a seq of strings."
   [board]
-  (let [line-length (count (nth board 0))]
-    (loop [line-num 1]
-      (let [cur-line-length (count (nth board line-num))]
-        (if (not= cur-line-length line-length)
-          (grid-rows-not-equal))
-        (if (< line-num (- (count board) 1))
-          (recur (inc line-num)))))))
+  (apply = (map count board)))
 
 (defn -main
   [& args]
   (let [board (line-seq (java.io.BufferedReader. *in*))]
-    (verify-line-length board)
-    (let [word (first *command-line-args*)
-          flattened-board (seq (char-array (clojure.string/join "" board)))
-          occurrences (search word flattened-board)]
-      (println (str "The word '" word "' occurs " occurrences " time"
-                    (if (= occurrences 1) "" "s") ".")))))
+    (if-not (lines-are-equal? board)
+      (println "ERROR: The rows of the grid must be the same length.  There may be as many rows as you wish, but each row must have the same number of characters.")
+      (let [word (first *command-line-args*)
+            flattened-board (seq (char-array (clojure.string/join "" board)))
+            occurrences (search word flattened-board)]
+        (println (str "The word '" word "' occurs " occurrences " time"
+                      (if (= occurrences 1) "" "s") "."))))))
