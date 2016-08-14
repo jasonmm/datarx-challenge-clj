@@ -42,27 +42,26 @@
 (defn build-word
   "Returns the word created by starting at 'board-index' and heading in the 
   'direction' direction for (count word) characters."
-  [board-index direction word board]
-  (let [board-size (int (Math/sqrt (count board)))]
+  [board-index direction word board line-length]
     (loop [built-word (str (nth board board-index))
            bi board-index]
-      ;(println (str built-word " " bi "...next index is " (next-board-index bi d board-size)))
+      ;(println (str built-word " " bi "...next index is " (next-board-index bi direction line-length)))
       (if (or (= (count built-word) (count word))
-              (= (next-board-index bi direction board-size) nil))
+              (= (next-board-index bi direction line-length) nil))
         built-word
-        (recur (str built-word (nth board (next-board-index bi direction board-size)))
-               (next-board-index bi direction board-size))))))
+        (recur (str built-word (nth board (next-board-index bi direction line-length)))
+               (next-board-index bi direction line-length)))))
 
 (defn search
   "Returns the number of times 'word' appears in the 'board'. 'board' is a 
-  vector of characters."
-  [word board]
+  vector of characters. 'line-length' the length of each line in the board."
+  [word board line-length]
   (def occurrences 0)
   (loop [n 0]
     (let [board-letter (nth board n)]
       (if (= board-letter (nth word 0))
         (doseq [d directions]
-          (let [built-word (build-word n d word board)]
+          (let [built-word (build-word n d word board line-length)]
             (if (= built-word word)
               (def occurrences (inc occurrences))))))
       (if (< n (- (count board) 1))
@@ -80,7 +79,8 @@
     (if-not (lines-are-equal? board)
       (println "ERROR: The rows of the grid must be the same length.  There may be as many rows as you wish, but each row must have the same number of characters.")
       (let [word (first *command-line-args*)
+            line-length (count (nth board 0))
             flattened-board (vec (clojure.string/join "" board))
-            occurrences (search word flattened-board)]
+            occurrences (search word flattened-board line-length)]
         (println (str "The word '" word "' occurs " occurrences " time"
                       (if (= occurrences 1) "" "s") "."))))))
