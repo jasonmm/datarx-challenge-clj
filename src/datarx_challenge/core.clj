@@ -43,14 +43,28 @@
   "Returns the word created by starting at 'board-index' and heading in the 
   'direction' direction for (count word) characters."
   [board-index direction word board line-length]
-  (println (str "building word at " board-index " " direction))
+;;  (println (str "building word at " board-index " " direction))
   (let [n (count word)]
-    (->> (iterate #(merge-with + direction %) {:x 0 :y 0})
-         (take n)
-         (map #(next-board-index board-index % line-length))
-         (take-while some?)
-         (map board)
-         (clojure.string/join))))
+;;    (let [x (map #(next-board-index 
+;;                    board-index 
+;;                    (take n (iterate (fn [r] (merge-with + direction r)) {:x 0 :y 0})) line-length))] 
+;;      (println x))
+    (let [arr
+          (map board
+          (take-while some?
+                      (map #(next-board-index board-index % line-length)
+                           (take n
+                                 (iterate #(merge-with + direction %) {:x 0 :y 0}))))
+          )
+]
+      (clojure.string/join arr)))
+;;    (->> (iterate #(merge-with + direction %) {:x 0 :y 0})
+;;         (take n)
+;;         (map #(next-board-index board-index % line-length))
+;;         (take-while some?)
+;;         (map board)
+;;         (clojure.string/join))))
+)
 
 (defn search
   "Returns the number of times 'word' appears in the 'board'. 'board' is a 
